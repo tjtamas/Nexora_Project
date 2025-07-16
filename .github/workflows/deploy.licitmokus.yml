@@ -14,13 +14,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Clear Flutter cache to avoid SDK mismatch
+      - name: Remove any pre-installed Flutter SDK (cleanup)
         run: rm -rf "$HOME/.flutter"
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - name: Set up Flutter (official action, Dart 3.7+ compatible)
+        uses: flutter-actions/setup-flutter@v2
         with:
-          flutter-version: '3.22.1'  # Dart 3.7.2+
+          flutter-version: '3.22.1'
 
       - name: Verify Flutter & Dart version
         run: flutter --version
