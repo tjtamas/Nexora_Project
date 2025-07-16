@@ -3,7 +3,7 @@ name: Build & Deploy Licitmokus App to GHCR
 on:
   push:
     branches:
-      - ci-licitmokus   # Trigger on push to main branch
+      - ci-licitmokus  # or: main if stable
 
 jobs:
   licitmokus-build-and-push:
@@ -14,10 +14,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Clear Flutter cache to avoid SDK mismatch
+        run: rm -rf "$HOME/.flutter"
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.1'  # Adjust to your SDK version
+          flutter-version: '3.22.1'  # Dart 3.7.2+
+
+      - name: Verify Flutter & Dart version
+        run: flutter --version
 
       - name: Install dependencies
         run: flutter pub get
