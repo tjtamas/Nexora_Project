@@ -1,0 +1,8 @@
+# Flutter & Dart
+.dart_tool/
+.packages
+pubspec.lock
+
+# Flutter build output
+build/
+packages/*/build/
