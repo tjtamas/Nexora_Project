@@ -37,8 +37,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: tjtamas
+          password: ${{ secrets.GHCR_PAT }}
 
       - name: Build Docker image
         run: docker build -f docker/Dockerfile.licitmokus -t ghcr.io/${{ github.repository_owner }}/licitmokus_web:latest .
