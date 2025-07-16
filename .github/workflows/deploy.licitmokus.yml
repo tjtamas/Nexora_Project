@@ -3,7 +3,7 @@ name: Build & Deploy Licitmokus App to GHCR
 on:
   push:
     branches:
-      - main  # Trigger on push to main branch
+      - ci-licitmokus   # Trigger on push to main branch
 
 jobs:
   licitmokus-build-and-push:
