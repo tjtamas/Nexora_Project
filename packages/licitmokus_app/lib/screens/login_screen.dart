@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'welcome_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,9 +27,12 @@ class _LoginScreenState extends State<LoginScreen> {
         password: password,
       );
 
-      ScaffoldMessenger.of(
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
         context,
-      ).showSnackBar(SnackBar(content: Text('Sikeres bejelentkezés: $email')));
+        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+      );
     } on FirebaseAuthException catch (e) {
       // 🔥 Itt a DEBUG print
       print("🔥 FirebaseAuthException");
