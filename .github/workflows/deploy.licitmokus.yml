@@ -3,7 +3,8 @@ name: Build & Deploy Licitmokus App to GHCR
 on:
   push:
     branches:
-      - ci-licitmokus  # or: main if stable
+     - ci-*
+     - feature/*
 
 jobs:
   licitmokus-build-and-push:
