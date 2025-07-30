@@ -19,7 +19,7 @@ jobs:
         run: rm -rf "$HOME/.flutter"
 
       - name: Set up Flutter (official action, Dart 3.7+ compatible)
-        uses: flutter-actions/setup-flutter@v2
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.1'
 

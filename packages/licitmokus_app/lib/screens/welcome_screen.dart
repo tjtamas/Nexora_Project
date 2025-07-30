@@ -25,7 +25,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    final doc =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
 
     if (doc.exists) {
       final data = doc.data();
@@ -36,7 +40,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     } else {
       setState(() {
         displayName = user.email;
-         role = 'user';
+        role = 'user';
       });
     }
   }
@@ -47,28 +51,45 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: role == 'admin'
-            ? IconButton(
-                icon: const Icon(Icons.person_add),
-                tooltip: 'Felhasználó rögzítése',
-                onPressed: () {
-                  // TODO: ide jön majd a felhasználó felvitel oldala
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Felhasználó létrehozás képernyő jön majd ide.")),
-                  );
-                },
-              )
-            : null,
+        leading:
+            role == 'admin'
+                ? IconButton(
+                  icon: const Icon(Icons.person_add),
+                  tooltip: 'Felhasználó rögzítése',
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Felhasználó létrehozás képernyő jön majd ide.",
+                        ),
+                      ),
+                    );
+                  },
+                )
+                : null,
         title: Text(
-        displayName != null ? 'Üdvözöllek, $displayName!' : 'Üdvözöllek...',
-      ),
+          displayName != null ? 'Üdvözöllek, $displayName!' : 'Üdvözöllek...',
+        ),
         actions: [
+          if (role == 'admin')
+            TextButton.icon(
+              icon: const Icon(Icons.star, color: Colors.white),
+              label: const Text(
+                "Licitpontok beállítása",
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const UpdatePointsDialog(),
+                );
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Kijelentkezés',
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-
               if (context.mounted) {
                 Navigator.pushReplacement(
                   context,
@@ -79,14 +100,64 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ],
       ),
+
       body: Center(
-        child: user == null
-            ? const Text('Nem vagy bejelentkezve.')
-              : const Text(
-              'Jó munkát kíván a Licitmókus csapata! 🐿️',
-              style: TextStyle(fontSize: 18),
-            ),
+        child:
+            user == null
+                ? const Text('Nem vagy bejelentkezve.')
+                : const Text(
+                  'Jó munkát kíván a Licitmókus csapata! 🐿️',
+                  style: TextStyle(fontSize: 18),
+                ),
       ),
+    );
+  }
+}
+
+class UpdatePointsDialog extends StatefulWidget {
+  const UpdatePointsDialog({super.key});
+
+  @override
+  State<UpdatePointsDialog> createState() => _UpdatePointsDialogState();
+}
+
+class _UpdatePointsDialogState extends State<UpdatePointsDialog> {
+  final TextEditingController _pointsController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Licitpont beállítása"),
+      content: TextField(
+        controller: _pointsController,
+        keyboardType: TextInputType.number,
+        decoration: const InputDecoration(
+          labelText: 'Alap pontszám',
+          border: OutlineInputBorder(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Mégse"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final input = _pointsController.text;
+            final points = int.tryParse(input);
+            if (points != null) {
+              // TODO: Itt majd elmentjük az értéket Firestore-ba
+              print("Licitpont beállítva: $points");
+              Navigator.pop(context);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Érvénytelen szám.")),
+              );
+            }
+          },
+          child: const Text("Mentés"),
+        ),
+      ],
     );
   }
 }
