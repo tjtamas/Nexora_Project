@@ -1,10 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'login_screen.dart'; // 👈 importáljuk a login képernyőt
+import 'login_screen.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  String? displayName;
+  String? role;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+
+    if (doc.exists) {
+      final data = doc.data();
+      setState(() {
+        displayName = doc.data()?['displayName'] ?? user.email;
+        role = data?['role'] ?? 'user';
+      });
+    } else {
+      setState(() {
+        displayName = user.email;
+         role = 'user';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +47,21 @@ class WelcomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Üdvözöl a Licitmókus'),
+        leading: role == 'admin'
+            ? IconButton(
+                icon: const Icon(Icons.person_add),
+                tooltip: 'Felhasználó rögzítése',
+                onPressed: () {
+                  // TODO: ide jön majd a felhasználó felvitel oldala
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Felhasználó létrehozás képernyő jön majd ide.")),
+                  );
+                },
+              )
+            : null,
+        title: Text(
+        displayName != null ? 'Üdvözöllek, $displayName!' : 'Üdvözöllek...',
+      ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -31,26 +80,12 @@ class WelcomeScreen extends StatelessWidget {
         ],
       ),
       body: Center(
-        child:
-            user == null
-                ? const Text('Nem vagy bejelentkezve.')
-                : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Szia!',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      user.email ?? 'Ismeretlen email',
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                  ],
-                ),
+        child: user == null
+            ? const Text('Nem vagy bejelentkezve.')
+              : const Text(
+              'Jó munkát kíván a Licitmókus csapata! 🐿️',
+              style: TextStyle(fontSize: 18),
+            ),
       ),
     );
   }
