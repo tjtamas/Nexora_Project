@@ -33,3 +33,6 @@ flutter:
 
   assets:
     - assets/images/bidsquarrel_main.svg
+
+
+# Trigger CI build manually
