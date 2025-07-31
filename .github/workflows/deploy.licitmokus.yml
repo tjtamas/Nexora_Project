@@ -34,7 +34,6 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd packages/licitmokus_app
           docker build -f docker/Dockerfile.licitmokus -t ghcr.io/${{ github.repository_owner }}/licitmokus_web:latest .
 
       - name: Push Docker image to GHCR
