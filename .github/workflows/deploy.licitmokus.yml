@@ -3,8 +3,8 @@ name: Build & Deploy Licitmokus App to GHCR
 on:
   push:
     branches:
-    - ci-*
-    - feature/*
+      - ci-*
+      - feature/*
 
 jobs:
   licitmokus-build-and-push:
@@ -15,32 +15,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Remove any pre-installed Flutter SDK (cleanup)
-        run: rm -rf "$HOME/.flutter"
-
-      - name: Set up Flutter (Dart 3.7+)
-        uses: subosito/flutter-action@v2
+      - name: Run Flutter commands in official Docker image
+        uses: addnab/docker-run-action@v3
         with:
-          flutter-version: '3.22.1'
-          cache: false
-
-      - name: Export Flutter path manually (biztonsági okból)
-        run: echo "$HOME/flutter/bin" >> $GITHUB_PATH
-
-      - name: Check Flutter & Dart versions
-        run: |
-          flutter --version
-          dart --version
-
-      - name: Install dependencies
-        run: |
-          cd packages/licitmokus_app
-          flutter pub get
-
-      - name: Build Flutter Web App
-        run: |
-          cd packages/licitmokus_app
-          flutter build web
+          image: ghcr.io/cirruslabs/flutter:3.22.1
+          options: -v ${{ github.workspace }}:/workspace -w /workspace
+          run: |
+            cd packages/licitmokus_app
+            flutter pub get
+            flutter build web
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
