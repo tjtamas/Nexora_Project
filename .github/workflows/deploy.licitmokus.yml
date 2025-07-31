@@ -1,48 +1,53 @@
-name: Build & Deploy Licitmokus App to GHCR
+  name: Build & Deploy Licitmokus App to GHCR
 
-on:
-  push:
-    branches:
-     - ci-*
-     - feature/*
+  on:
+    push:
+      branches:
+      - ci-*
+      - feature/*
 
-jobs:
-  licitmokus-build-and-push:
-    runs-on: ubuntu-latest
-    name: Build & Push Docker Image for Licitmokus
+  jobs:
+    licitmokus-build-and-push:
+      runs-on: ubuntu-latest
+      name: Build & Push Docker Image for Licitmokus
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
 
-      - name: Remove any pre-installed Flutter SDK (cleanup)
-        run: rm -rf "$HOME/.flutter"
+        - name: Remove any pre-installed Flutter SDK (cleanup)
+          run: rm -rf "$HOME/.flutter"
 
-      - name: Set up Flutter (official action, Dart 3.7+ compatible)
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.22.1'
+        - name: Set up Flutter (official action, Dart 3.7+ compatible)
+          uses: subosito/flutter-action@v2
+          with:
+            flutter-version: '3.22.1'
 
-      - name: Verify Flutter & Dart version
-        run: flutter --version
+        - name: Verify Flutter & Dart version
+          run: flutter --version
 
-      - name: Install dependencies
-        run: flutter pub get
-        working-directory: packages/licitmokus_app
+        - name: Install dependencies
+          run: |
+            cd packages/licitmokus_app
+            flutter pub get
 
-      - name: Build Flutter Web App
-        run: flutter build web
-        working-directory: packages/licitmokus_app
+        - name: Build Flutter Web App
+          run: |
+            cd packages/licitmokus_app
+            flutter build web
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: tjtamas
-          password: ${{ secrets.GHCR_PAT }}
+        - name: Log in to GitHub Container Registry
+          uses: docker/login-action@v2
+          with:
+            registry: ghcr.io
+            username: tjtamas
+            password: ${{ secrets.GHCR_PAT }}
 
-      - name: Build Docker image
-        run: docker build -f docker/Dockerfile.licitmokus -t ghcr.io/${{ github.repository_owner }}/licitmokus_web:latest .
+        - name: Build Docker image
+          run: |
+            cd packages/licitmokus_app
+            docker build -f docker/Dockerfile.licitmokus -t ghcr.io/${{ github.repository_owner }}/licitmokus_web:latest .
 
-      - name: Push Docker image to GHCR
-        run: docker push ghcr.io/${{ github.repository_owner }}/licitmokus_web:latest
+
+        - name: Push Docker image to GHCR
+          run: docker push ghcr.io/${{ github.repository_owner }}/licitmokus_web:latest
