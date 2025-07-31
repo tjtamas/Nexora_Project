@@ -15,10 +15,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Run Flutter commands in official Docker image
+      - name: Run Flutter commands in official Docker image (Dart 3.7+ biztos!)
         uses: addnab/docker-run-action@v3
         with:
-          image: ghcr.io/cirruslabs/flutter:3.22.1
+          image: ghcr.io/cirruslabs/flutter:stable
           options: -v ${{ github.workspace }}:/workspace -w /workspace
           run: |
             cd packages/licitmokus_app
