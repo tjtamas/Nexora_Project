@@ -4,7 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'login_screen.dart';
 import '../widgets/admin_action_button.dart';
-import '../widgets/update_points_dialog.dart'; // ✨ külön widgetként kezeljük
+import '../widgets/update_points_dialog.dart';
+import '../widgets/add_user_dialog.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -27,7 +28,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    final doc =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
     if (doc.exists) {
       final data = doc.data();
       setState(() {
@@ -47,7 +52,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F1F5), 
+      backgroundColor: const Color(0xFFE8F1F5),
       appBar: AppBar(
         centerTitle: true,
         title: Text(
@@ -70,76 +75,82 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ],
       ),
-      body: user == null
-          ? const Center(child: Text('Nem vagy bejelentkezve.'))
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (role == 'admin') ...[
-                    Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children: [
-                        AdminActionButton(
-                          icon: Icons.person_add,
-                          label: "Felhasználó hozzáadása",
-                          color: Colors.blue,
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Felhasználó létrehozás jön majd ide.")),
-                            );
-                          },
-                        ),
-                        AdminActionButton(
-                          icon: Icons.star,
-                          label: "Licitpontok beállítása",
-                          color: Colors.orange,
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => const UpdatePointsDialog(),
-                            );
-                          },
-                        ),
-                        AdminActionButton(
-                          icon: Icons.access_time,
-                          label: "Munkaidők",
-                          color: Colors.teal,
-                          onTap: () {},
-                        ),
-                        AdminActionButton(
-                          icon: Icons.beach_access,
-                          label: "Szabadságok",
-                          color: Colors.green,
-                          onTap: () {},
-                        ),
-                        AdminActionButton(
-                          icon: Icons.settings,
-                          label: "Beállítások",
-                          color: Colors.grey,
-                          onTap: () {},
-                        ),
-                        AdminActionButton(
-                          icon: Icons.analytics,
-                          label: "Kimutatások",
-                          color: Colors.deepPurple,
-                          onTap: () {},
-                        ),
-                      ],
+      body:
+          user == null
+              ? const Center(child: Text('Nem vagy bejelentkezve.'))
+              : Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 32.0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (role == 'admin') ...[
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        children: [
+                          AdminActionButton(
+                            icon: Icons.person_add,
+                            label: "Felhasználó hozzáadása",
+                            color: Colors.blue,
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => const AddUserDialog(),
+                              );
+                            },
+                          ),
+                          AdminActionButton(
+                            icon: Icons.star,
+                            label: "Licitpontok beállítása",
+                            color: Colors.orange,
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (context) => const UpdatePointsDialog(),
+                              );
+                            },
+                          ),
+                          AdminActionButton(
+                            icon: Icons.access_time,
+                            label: "Munkaidők",
+                            color: Colors.teal,
+                            onTap: () {},
+                          ),
+                          AdminActionButton(
+                            icon: Icons.beach_access,
+                            label: "Szabadságok",
+                            color: Colors.green,
+                            onTap: () {},
+                          ),
+                          AdminActionButton(
+                            icon: Icons.settings,
+                            label: "Beállítások",
+                            color: Colors.grey,
+                            onTap: () {},
+                          ),
+                          AdminActionButton(
+                            icon: Icons.analytics,
+                            label: "Kimutatások",
+                            color: Colors.deepPurple,
+                            onTap: () {},
+                          ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 32),
+                    const Center(
+                      child: Text(
+                        'Jó munkát kíván a Licitmókus csapata! 🐿️',
+                        style: TextStyle(fontSize: 18),
+                      ),
                     ),
                   ],
-                  const SizedBox(height: 32),
-                  const Center(
-                    child: Text(
-                      'Jó munkát kíván a Licitmókus csapata! 🐿️',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
     );
   }
 }
