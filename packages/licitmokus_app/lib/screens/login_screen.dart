@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'welcome_screen.dart';
+import '../widgets/change_password_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -29,6 +30,28 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (!mounted || user == null) return;
+
+      // Ellenőrizzük: ez az első belépés?
+      final creationTime = user.metadata.creationTime;
+      final lastSignInTime = user.metadata.lastSignInTime;
+
+      final isFirstLogin =
+          creationTime != null &&
+          lastSignInTime != null &&
+          creationTime == lastSignInTime;
+
+      if (isFirstLogin) {
+        // Megjelenítjük a jelszócsere dialógust
+        await showDialog(
+          context: context,
+          builder: (_) => ChangePasswordDialog(user: user),
+        );
+      }
+
+      // Belépés után mindig továbbmegyünk WelcomeScreen-re
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const WelcomeScreen()),
